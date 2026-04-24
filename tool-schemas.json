@@ -1,0 +1,96 @@
+{
+  "OrderStatusTool": {
+    "type": "object",
+    "required": [
+      "order_id",
+      "customer_email"
+    ],
+    "properties": {
+      "order_id": {
+        "type": "string",
+        "pattern": "^ORD-[0-9]{4}$"
+      },
+      "customer_email": {
+        "type": "string",
+        "format": "email"
+      }
+    },
+    "returns": {
+      "order_id": "string",
+      "status": "string",
+      "carrier": "string",
+      "eta": "date"
+    }
+  },
+  "ReturnInitiationTool": {
+    "type": "object",
+    "required": [
+      "order_id",
+      "customer_email"
+    ],
+    "properties": {
+      "order_id": {
+        "type": "string",
+        "pattern": "^ORD-[0-9]{4}$"
+      },
+      "customer_email": {
+        "type": "string",
+        "format": "email"
+      }
+    },
+    "returns": {
+      "return_id": "string",
+      "stage": "string",
+      "expected_completion_date": "date"
+    }
+  },
+  "DeliveryReschedulingTool": {
+    "type": "object",
+    "required": [
+      "order_id",
+      "new_delivery_date",
+      "customer_email"
+    ],
+    "properties": {
+      "order_id": {
+        "type": "string",
+        "pattern": "^ORD-[0-9]{4}$"
+      },
+      "customer_email": {
+        "type": "string",
+        "format": "email"
+      },
+      "new_delivery_date": {
+        "type": "string",
+        "format": "date"
+      }
+    },
+    "returns": {
+      "order_id": "string",
+      "new_delivery_date": "date",
+      "confirmation": "string"
+    }
+  },
+  "RefundStatusTool": {
+    "type": "object",
+    "required": [
+      "return_id",
+      "customer_email"
+    ],
+    "properties": {
+      "return_id": {
+        "type": "string",
+        "pattern": "^RET-[0-9]{4}$"
+      },
+      "customer_email": {
+        "type": "string",
+        "format": "email"
+      }
+    },
+    "returns": {
+      "return_id": "string",
+      "stage": "string",
+      "expected_completion_date": "date"
+    }
+  }
+}

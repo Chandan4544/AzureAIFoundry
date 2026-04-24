@@ -1,0 +1,15 @@
+/workspaces/AzureAIFoundry/bin/Debug/net10.0/Group3RetailEcommercePrjct
+/workspaces/AzureAIFoundry/bin/Debug/net10.0/Group3RetailEcommercePrjct.deps.json
+/workspaces/AzureAIFoundry/bin/Debug/net10.0/Group3RetailEcommercePrjct.runtimeconfig.json
+/workspaces/AzureAIFoundry/bin/Debug/net10.0/Group3RetailEcommercePrjct.dll
+/workspaces/AzureAIFoundry/bin/Debug/net10.0/Group3RetailEcommercePrjct.pdb
+/workspaces/AzureAIFoundry/obj/Debug/net10.0/Group3RetailEcommercePrjct.GeneratedMSBuildEditorConfig.editorconfig
+/workspaces/AzureAIFoundry/obj/Debug/net10.0/Group3RetailEcommercePrjct.AssemblyInfoInputs.cache
+/workspaces/AzureAIFoundry/obj/Debug/net10.0/Group3RetailEcommercePrjct.AssemblyInfo.cs
+/workspaces/AzureAIFoundry/obj/Debug/net10.0/Group3RetailEcommercePrjct.csproj.CoreCompileInputs.cache
+/workspaces/AzureAIFoundry/obj/Debug/net10.0/Group3RetailEcommercePrjct.sourcelink.json
+/workspaces/AzureAIFoundry/obj/Debug/net10.0/Group3RetailEcommercePrjct.dll
+/workspaces/AzureAIFoundry/obj/Debug/net10.0/refint/Group3RetailEcommercePrjct.dll
+/workspaces/AzureAIFoundry/obj/Debug/net10.0/Group3RetailEcommercePrjct.pdb
+/workspaces/AzureAIFoundry/obj/Debug/net10.0/Group3RetailEcommercePrjct.genruntimeconfig.cache
+/workspaces/AzureAIFoundry/obj/Debug/net10.0/ref/Group3RetailEcommercePrjct.dll

@@ -1,14 +1,9 @@
 using Group3RetailEcommercePrjct.Core;
 using System.Text.Json;
 
-var projectRoot = AppContext.BaseDirectory;
-for (var i = 0; i < 4; i++)
-{
-	projectRoot = Directory.GetParent(projectRoot)?.FullName ?? projectRoot;
-}
-
-var workspaceRoot = Directory.GetParent(projectRoot)?.FullName ?? projectRoot;
-var appSettingsPath = Path.Combine(workspaceRoot, "appsettings.json");
+var appSettingsPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "appsettings.json");
+appSettingsPath = Path.GetFullPath(appSettingsPath);
+var projectRoot = Path.GetDirectoryName(appSettingsPath) ?? appSettingsPath;
 
 if (!File.Exists(appSettingsPath))
 {

@@ -1,97 +1,130 @@
 [
   {
-    "TimestampUtc": "2026-04-24T10:50:56.5309566Z",
-    "ThreadId": "96aab9eed08a453888d8c43d0efeff3b",
-    "RunId": "41504115a6a14c389d5685335e68f19b",
+    "TimestampUtc": "2026-04-27T13:24:40.5694735Z",
+    "ThreadId": "adcea02442ac44aa87aa91b92a0e1459",
+    "RunId": "3e6e365c772045018c4e82ea59f38c27",
     "ToolName": "IdentityVerification",
     "Outcome": "Success",
     "Summary": "Identity verified.",
     "Input": {
       "OrderId": "ORD-1002",
-      "CustomerEmail": "alex@shopaxis.com"
+      "CustomerEmail": "alex@shopaxis.com",
+      "runtime": {
+        "AgentName": "group3-ecommerce-agent",
+        "ModelDeploymentName": "gpt-4o",
+        "ProjectEndpoint": "https://aifoundry-test-group3.services.ai.azure.com/api/projects/GroupRetailEcommerceProject"
+      }
     },
     "Output": {
       "verified": true
     }
   },
   {
-    "TimestampUtc": "2026-04-24T10:50:56.6415029Z",
-    "ThreadId": "96aab9eed08a453888d8c43d0efeff3b",
-    "RunId": "dad5c0dfa7be4fa5a80082e073b3eaaf",
+    "TimestampUtc": "2026-04-27T13:24:40.5792299Z",
+    "ThreadId": "adcea02442ac44aa87aa91b92a0e1459",
+    "RunId": "44d1bd537f374b809415ac8c345b4e09",
     "ToolName": "order_status",
     "Outcome": "Success",
     "Summary": "Tool call completed.",
     "Input": {
-      "Action": "order_status",
-      "CustomerMessage": "Please check order status",
-      "CustomerEmail": "alex@shopaxis.com",
-      "OrderId": "ORD-1002",
-      "ReturnId": null,
-      "NewDeliveryDate": null
+      "request": {
+        "Action": "order_status",
+        "CustomerMessage": "Please check order status",
+        "CustomerEmail": "alex@shopaxis.com",
+        "OrderId": "ORD-1002",
+        "ReturnId": null,
+        "NewDeliveryDate": null
+      },
+      "runtime": {
+        "AgentName": "group3-ecommerce-agent",
+        "ModelDeploymentName": "gpt-4o",
+        "ProjectEndpoint": "https://aifoundry-test-group3.services.ai.azure.com/api/projects/GroupRetailEcommerceProject"
+      }
     },
     "Output": {
       "order_id": "ORD-1002",
       "status": "Delivered",
       "carrier": "ContosoShip",
-      "eta": "2026-04-20"
+      "eta": "2026-04-23"
     }
   },
   {
-    "TimestampUtc": "2026-04-24T10:50:56.6707464Z",
-    "ThreadId": "96aab9eed08a453888d8c43d0efeff3b",
-    "RunId": "c6d365c0f5b74c07928cb0cb6981aabc",
+    "TimestampUtc": "2026-04-27T13:24:40.5910568Z",
+    "ThreadId": "adcea02442ac44aa87aa91b92a0e1459",
+    "RunId": "3a3cf1f0cd9a48fb83ec2b31468b1f02",
     "ToolName": "return_initiation",
     "Outcome": "Success",
     "Summary": "Tool call completed.",
     "Input": {
-      "Action": "return_initiation",
-      "CustomerMessage": "I am frustrated but I need a return.",
-      "CustomerEmail": "alex@shopaxis.com",
-      "OrderId": "ORD-1002",
-      "ReturnId": null,
-      "NewDeliveryDate": null
+      "request": {
+        "Action": "return_initiation",
+        "CustomerMessage": "I am frustrated but I need a return.",
+        "CustomerEmail": "alex@shopaxis.com",
+        "OrderId": "ORD-1002",
+        "ReturnId": null,
+        "NewDeliveryDate": null
+      },
+      "runtime": {
+        "AgentName": "group3-ecommerce-agent",
+        "ModelDeploymentName": "gpt-4o",
+        "ProjectEndpoint": "https://aifoundry-test-group3.services.ai.azure.com/api/projects/GroupRetailEcommerceProject"
+      }
     },
     "Output": {
-      "return_id": "RET-8391",
+      "return_id": "RET-9345",
       "stage": "Initiated",
-      "expected_completion_date": "2026-05-01"
+      "expected_completion_date": "2026-05-04"
     }
   },
   {
-    "TimestampUtc": "2026-04-24T10:50:56.6767699Z",
-    "ThreadId": "96aab9eed08a453888d8c43d0efeff3b",
-    "RunId": "e50367e0db58434f9fbc16a66a27c30e",
+    "TimestampUtc": "2026-04-27T13:24:40.5942104Z",
+    "ThreadId": "adcea02442ac44aa87aa91b92a0e1459",
+    "RunId": "2cb5c85787bd48009e1622807f7f99be",
     "ToolName": "refund_status",
     "Outcome": "Success",
     "Summary": "Tool call completed.",
     "Input": {
-      "Action": "refund_status",
-      "CustomerMessage": "Check my refund status",
-      "CustomerEmail": "alex@shopaxis.com",
-      "OrderId": null,
-      "ReturnId": "RET-9001",
-      "NewDeliveryDate": null
+      "request": {
+        "Action": "refund_status",
+        "CustomerMessage": "Check my refund status",
+        "CustomerEmail": "alex@shopaxis.com",
+        "OrderId": null,
+        "ReturnId": "RET-9001",
+        "NewDeliveryDate": null
+      },
+      "runtime": {
+        "AgentName": "group3-ecommerce-agent",
+        "ModelDeploymentName": "gpt-4o",
+        "ProjectEndpoint": "https://aifoundry-test-group3.services.ai.azure.com/api/projects/GroupRetailEcommerceProject"
+      }
     },
     "Output": {
       "return_id": "RET-9001",
       "stage": "Inspection",
-      "expected_completion_date": "2026-04-29"
+      "expected_completion_date": "2026-05-02"
     }
   },
   {
-    "TimestampUtc": "2026-04-24T10:50:56.6772694Z",
-    "ThreadId": "96aab9eed08a453888d8c43d0efeff3b",
-    "RunId": "db0cf478a11b4b25be62f3c3c4ee559e",
+    "TimestampUtc": "2026-04-27T13:24:40.5942658Z",
+    "ThreadId": "adcea02442ac44aa87aa91b92a0e1459",
+    "RunId": "1fbf61d37ffa49d29739a7188fac698f",
     "ToolName": "NONE",
     "Outcome": "Suspended",
     "Summary": "High-risk language detected",
     "Input": {
-      "Action": "order_status",
-      "CustomerMessage": "This is fraud and I will file a lawsuit",
-      "CustomerEmail": "alex@shopaxis.com",
-      "OrderId": "ORD-1001",
-      "ReturnId": null,
-      "NewDeliveryDate": null
+      "request": {
+        "Action": "order_status",
+        "CustomerMessage": "This is fraud and I will file a lawsuit",
+        "CustomerEmail": "alex@shopaxis.com",
+        "OrderId": "ORD-1001",
+        "ReturnId": null,
+        "NewDeliveryDate": null
+      },
+      "runtime": {
+        "AgentName": "group3-ecommerce-agent",
+        "ModelDeploymentName": "gpt-4o",
+        "ProjectEndpoint": "https://aifoundry-test-group3.services.ai.azure.com/api/projects/GroupRetailEcommerceProject"
+      }
     }
   }
 ]

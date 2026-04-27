@@ -1,12 +1,46 @@
-﻿using Group3RetailEcommercePrjct.Core;
+using Group3RetailEcommercePrjct.Core;
 using System.Text.Json;
+
+var projectRoot = AppContext.BaseDirectory;
+for (var i = 0; i < 4; i++)
+{
+	projectRoot = Directory.GetParent(projectRoot)?.FullName ?? projectRoot;
+}
+
+var workspaceRoot = Directory.GetParent(projectRoot)?.FullName ?? projectRoot;
+var appSettingsPath = Path.Combine(workspaceRoot, "appsettings.json");
+
+if (!File.Exists(appSettingsPath))
+{
+	throw new FileNotFoundException($"appsettings.json was not found at: {appSettingsPath}");
+}
+
+var appSettings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(appSettingsPath))
+	?? throw new InvalidOperationException("Unable to parse appsettings.json.");
+
+if (string.IsNullOrWhiteSpace(appSettings.PROJECT_ENDPOINT)
+	|| string.IsNullOrWhiteSpace(appSettings.MODEL_DEPLOYMENT_NAME)
+	|| string.IsNullOrWhiteSpace(appSettings.AGENT_NAME))
+{
+	throw new InvalidOperationException("appsettings.json must include PROJECT_ENDPOINT, MODEL_DEPLOYMENT_NAME, and AGENT_NAME.");
+}
+
+Console.WriteLine($"Agent: {appSettings.AGENT_NAME}");
+Console.WriteLine($"Model deployment: {appSettings.MODEL_DEPLOYMENT_NAME}");
+Console.WriteLine(new string('=', 60));
 
 var store = new SimulatedBackendStore();
 var identity = new IdentityService(store);
 var safety = new ContentSafetyService();
 var tools = new CommerceTools(store);
 var audit = new AuditLogger();
-var orchestrator = new AgentOrchestrator(identity, safety, tools, audit);
+var runtimeConfig = new AgentRuntimeConfig
+{
+	ProjectEndpoint = appSettings.PROJECT_ENDPOINT,
+	ModelDeploymentName = appSettings.MODEL_DEPLOYMENT_NAME,
+	AgentName = appSettings.AGENT_NAME
+};
+var orchestrator = new AgentOrchestrator(identity, safety, tools, audit, runtimeConfig);
 
 var session = new SessionContext
 {
@@ -64,13 +98,14 @@ foreach (var request in scriptedRequests)
 	Console.WriteLine(new string('-', 60));
 }
 
-var projectRoot = AppContext.BaseDirectory;
-for (var i = 0; i < 4; i++)
-{
-	projectRoot = Directory.GetParent(projectRoot)?.FullName ?? projectRoot;
-}
-
 ToolSchemas.WriteJson(Path.Combine(projectRoot, "tool-schemas.json"));
 audit.WriteJson(Path.Combine(projectRoot, "audit-log-sample.json"));
 
 Console.WriteLine("Artifacts generated: tool-schemas.json, audit-log-sample.json");
+
+internal sealed record AppSettings
+{
+	public string PROJECT_ENDPOINT { get; init; } = string.Empty;
+	public string MODEL_DEPLOYMENT_NAME { get; init; } = string.Empty;
+	public string AGENT_NAME { get; init; } = string.Empty;
+}

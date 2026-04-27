@@ -29,6 +29,13 @@ public sealed class SessionContext
     public bool IdentityVerified { get; set; }
 }
 
+public sealed class AgentRuntimeConfig
+{
+    public required string ProjectEndpoint { get; init; }
+    public required string ModelDeploymentName { get; init; }
+    public required string AgentName { get; init; }
+}
+
 public sealed class UserRequest
 {
     public required string Action { get; init; }

@@ -4,7 +4,8 @@ public sealed class AgentOrchestrator(
     IdentityService identityService,
     ContentSafetyService contentSafety,
     CommerceTools tools,
-    AuditLogger auditLogger)
+    AuditLogger auditLogger,
+    AgentRuntimeConfig runtimeConfig)
 {
     public AgentResponse Process(SessionContext session, UserRequest request)
     {
@@ -22,7 +23,16 @@ public sealed class AgentOrchestrator(
                 ToolName = "NONE",
                 Outcome = "Suspended",
                 Summary = safety.Reason,
-                Input = request,
+                Input = new
+                {
+                    request,
+                    runtime = new
+                    {
+                        runtimeConfig.AgentName,
+                        runtimeConfig.ModelDeploymentName,
+                        runtimeConfig.ProjectEndpoint
+                    }
+                },
                 Output = null
             });
 
@@ -56,7 +66,17 @@ public sealed class AgentOrchestrator(
                     ToolName = "IdentityVerification",
                     Outcome = verified ? "Success" : "Rejected",
                     Summary = verified ? "Identity verified." : "Identity mismatch.",
-                    Input = new { request.OrderId, request.CustomerEmail },
+                    Input = new
+                    {
+                        request.OrderId,
+                        request.CustomerEmail,
+                        runtime = new
+                        {
+                            runtimeConfig.AgentName,
+                            runtimeConfig.ModelDeploymentName,
+                            runtimeConfig.ProjectEndpoint
+                        }
+                    },
                     Output = identityOutput
                 });
 
@@ -85,7 +105,16 @@ public sealed class AgentOrchestrator(
                 ToolName = request.Action,
                 Outcome = "Success",
                 Summary = "Tool call completed.",
-                Input = request,
+                Input = new
+                {
+                    request,
+                    runtime = new
+                    {
+                        runtimeConfig.AgentName,
+                        runtimeConfig.ModelDeploymentName,
+                        runtimeConfig.ProjectEndpoint
+                    }
+                },
                 Output = output
             });
 
@@ -106,7 +135,16 @@ public sealed class AgentOrchestrator(
                 ToolName = request.Action,
                 Outcome = "Rejected",
                 Summary = ex.Message,
-                Input = request,
+                Input = new
+                {
+                    request,
+                    runtime = new
+                    {
+                        runtimeConfig.AgentName,
+                        runtimeConfig.ModelDeploymentName,
+                        runtimeConfig.ProjectEndpoint
+                    }
+                },
                 Output = null
             });
 

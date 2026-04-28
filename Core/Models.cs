@@ -22,18 +22,26 @@ public sealed class ReturnRecord
     public required DateTime CreatedAtUtc { get; init; }
 }
 
+public sealed class RefundRecord
+{
+    public required string RefundId { get; init; }
+    public required string ReturnId { get; init; }
+    public required string OrderId { get; init; }
+    public required string CustomerEmail { get; init; }
+    public required string Status { get; set; }
+    public required decimal Amount { get; set; }
+    public required string Method { get; set; }
+    public required DateTime InitiatedAtUtc { get; init; }
+    public DateTime? CompletedAtUtc { get; set; }
+}
+
 public sealed class SessionContext
 {
     public required string ThreadId { get; init; }
+    /// <summary>Foundry thread ID — set on the first RunAsync call and reused for all subsequent turns.</summary>
+    public string? FoundryThreadId { get; set; }
     public string? VerifiedEmail { get; set; }
     public bool IdentityVerified { get; set; }
-}
-
-public sealed class AgentRuntimeConfig
-{
-    public required string ProjectEndpoint { get; init; }
-    public required string ModelDeploymentName { get; init; }
-    public required string AgentName { get; init; }
 }
 
 public sealed class UserRequest

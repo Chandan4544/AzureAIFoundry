@@ -22,10 +22,6 @@
 /workspaces/AzureAIFoundry/bin/Debug/net10.0/Azure.Storage.Blobs.dll
 /workspaces/AzureAIFoundry/bin/Debug/net10.0/Azure.Storage.Common.dll
 /workspaces/AzureAIFoundry/bin/Debug/net10.0/Microsoft.Bcl.AsyncInterfaces.dll
-/workspaces/AzureAIFoundry/bin/Debug/net10.0/Microsoft.Extensions.AI.dll
-/workspaces/AzureAIFoundry/bin/Debug/net10.0/Microsoft.Extensions.AI.Abstractions.dll
-/workspaces/AzureAIFoundry/bin/Debug/net10.0/Microsoft.Extensions.AI.OpenAI.dll
-/workspaces/AzureAIFoundry/bin/Debug/net10.0/Microsoft.Extensions.Caching.Abstractions.dll
 /workspaces/AzureAIFoundry/bin/Debug/net10.0/Microsoft.Extensions.Configuration.dll
 /workspaces/AzureAIFoundry/bin/Debug/net10.0/Microsoft.Extensions.Configuration.Abstractions.dll
 /workspaces/AzureAIFoundry/bin/Debug/net10.0/Microsoft.Extensions.Configuration.FileExtensions.dll
@@ -46,8 +42,9 @@
 /workspaces/AzureAIFoundry/bin/Debug/net10.0/System.ClientModel.dll
 /workspaces/AzureAIFoundry/bin/Debug/net10.0/System.IO.Hashing.dll
 /workspaces/AzureAIFoundry/bin/Debug/net10.0/System.Memory.Data.dll
-/workspaces/AzureAIFoundry/bin/Debug/net10.0/System.Numerics.Tensors.dll
 /workspaces/AzureAIFoundry/bin/Debug/net10.0/System.Security.Cryptography.ProtectedData.dll
 /workspaces/AzureAIFoundry/bin/Debug/net10.0/runtimes/win/lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll
 /workspaces/AzureAIFoundry/obj/Debug/net10.0/Group3RetailEcommercePrjct.csproj.AssemblyReference.cache
 /workspaces/AzureAIFoundry/obj/Debug/net10.0/Group3Re.DC40A04B.Up2Date
+/workspaces/AzureAIFoundry/bin/Debug/net10.0/appsettings.json
+/workspaces/AzureAIFoundry/bin/Debug/net10.0/Microsoft.Extensions.Configuration.EnvironmentVariables.dll

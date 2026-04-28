@@ -65,7 +65,17 @@ else
 {
     // ── Local simulation path ─────────────────────────────────────────────────
     var identity    = new IdentityService(store);
-    var orchestrator = new AgentOrchestrator(identity, safety, tools, audit);
+    var orchestrator = new AgentOrchestrator(
+        identity,
+        safety,
+        tools,
+        audit,
+        new AgentRuntimeConfig
+        {
+            AgentName = config["Foundry:AgentName"] ?? "ShopAxis-Agent",
+            ModelDeploymentName = config["Foundry:ModelDeploymentName"] ?? string.Empty,
+            ProjectEndpoint = config["Foundry:ProjectEndpoint"] ?? string.Empty
+        });
     var session = new SessionContext
     {
         ThreadId         = Guid.NewGuid().ToString("N"),

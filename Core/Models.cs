@@ -82,3 +82,10 @@ public sealed class ToolAuditEntry
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public object? Output { get; init; }
 }
+
+public sealed class AgentRuntimeConfig
+{
+    public required string AgentName { get; init; }
+    public required string ModelDeploymentName { get; init; }
+    public required string ProjectEndpoint { get; init; }
+}

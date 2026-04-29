@@ -42,6 +42,8 @@ public sealed class SessionContext
     public string? FoundryThreadId { get; set; }
     public string? VerifiedEmail { get; set; }
     public bool IdentityVerified { get; set; }
+    public string? OrderId { get; set; }
+    public string? CustomerEmail { get; set; }
 }
 
 public sealed class UserRequest

@@ -35,20 +35,24 @@ public sealed class SimulatedBackendStore
                 container = new BlobServiceClient(new Uri(accountUrl), new DefaultAzureCredential())
                                 .GetBlobContainerClient(containerName);
 
-            store.Orders  = await LoadBlobJsonAsync<Dictionary<string, OrderRecord>>(container,  "orders.json")
+            store.Orders  = ToCaseInsensitive(
+                                await LoadBlobJsonAsync<Dictionary<string, OrderRecord>>(container,  "orders.json"))
                             ?? store.DefaultOrders();
-            store.Returns = await LoadBlobJsonAsync<Dictionary<string, ReturnRecord>>(container, "returns.json")
+            store.Returns = ToCaseInsensitive(
+                                await LoadBlobJsonAsync<Dictionary<string, ReturnRecord>>(container, "returns.json"))
                             ?? store.DefaultReturns();
-            store.Refunds = await LoadBlobJsonAsync<Dictionary<string, RefundRecord>>(container, "refunds.json")
+            store.Refunds = ToCaseInsensitive(
+                                await LoadBlobJsonAsync<Dictionary<string, RefundRecord>>(container, "refunds.json"))
                             ?? store.DefaultRefunds();
 
-            Console.WriteLine($"  Loaded {store.Orders.Count} orders, {store.Returns.Count} returns, {store.Refunds.Count} refunds.");
+            Console.WriteLine($"  Loaded {store.Orders.Count} orders, {store.Returns.Count} returns, {store.Refunds.Count} refunds from storage.");
         }
         else
         {
             store.Orders  = store.DefaultOrders();
             store.Returns = store.DefaultReturns();
             store.Refunds = store.DefaultRefunds();
+            Console.WriteLine($"  Using default seed data: {store.Orders.Count} orders, {store.Returns.Count} returns, {store.Refunds.Count} refunds.");
         }
 
         return store;
@@ -67,6 +71,16 @@ public sealed class SimulatedBackendStore
 
         return JsonSerializer.Deserialize<T>(bytes,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+    }
+
+    /// <summary>
+    /// Re-creates a dictionary with a case-insensitive comparer so lookups
+    /// work regardless of key casing in the source JSON.
+    /// </summary>
+    private static Dictionary<string, T>? ToCaseInsensitive<T>(Dictionary<string, T>? source)
+    {
+        if (source is null) return null;
+        return new Dictionary<string, T>(source, StringComparer.OrdinalIgnoreCase);
     }
 
     private Dictionary<string, OrderRecord> DefaultOrders() =>

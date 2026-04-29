@@ -1,6 +1,7 @@
 using Group3RetailEcommercePrjct.Core;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 // ── Build configuration ───────────────────────────────────────────────────────
 // Loads appsettings.json first, then appsettings.Development.json (if present),
@@ -31,33 +32,257 @@ if (useFoundry)
 {
     // ── Live Azure AI Foundry path — interactive chat ─────────────────────────
     var runner  = new FoundryAgentRunner(config, safety, tools, audit);
-    var session = new SessionContext
+
+    // ── Welcome message ───────────────────────────────────────────────────────
+    Console.WriteLine("Welcome to ShopAxis Customer Support! 🛒");
+    Console.WriteLine("We can help you with the following services:");
+    Console.WriteLine();
+    Console.WriteLine("  1. Order Status          — e.g. Check status of ORD-0001");
+    Console.WriteLine("  2. Return Initiation     — e.g. I want to return ORD-0001");
+    Console.WriteLine("  3. Delivery Rescheduling — e.g. Reschedule delivery for ORD-0001 to 2026-05-15");
+    Console.WriteLine("  4. Refund Status         — e.g. Check refund for RET-9001");
+    Console.WriteLine();
+
+    // ── Service loop — repeats until user says no ─────────────────────────────
+    bool isFirstRound = true;
+    bool userWantsToExit = false;
+
+    while (!userWantsToExit)
     {
-        ThreadId         = Guid.NewGuid().ToString("N"),
-        IdentityVerified = false,
-        VerifiedEmail    = null
-    };
-
-    Console.WriteLine("Type your message and press Enter. Type 'exit' to quit.");
-    Console.WriteLine(new string('-', 60));
-
-    while (true)
-    {
-        Console.Write("You: ");
-        var input = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(input)) continue;
-        if (input.Trim().Equals("exit", StringComparison.OrdinalIgnoreCase)) break;
-
-        var response = await runner.RunAsync(session, input);
-        // Streaming already printed "Agent: <tokens>\n" for normal replies.
-        // For suspension/safety blocks, nothing was streamed, so print the message here.
-        if (response.SuspendedForEscalation)
+        // ── Service selection ─────────────────────────────────────────────
+        int serviceChoice;
+        while (true)
         {
-            Console.WriteLine($"Agent: {response.Message}");
-            Console.WriteLine(new string('-', 60));
-            Console.WriteLine("[Session suspended — escalated to human agent]");
+            if (!isFirstRound)
+            {
+                Console.WriteLine("  1. Order Status          — e.g. Check status of ORD-0001");
+                Console.WriteLine("  2. Return Initiation     — e.g. I want to return ORD-0001");
+                Console.WriteLine("  3. Delivery Rescheduling — e.g. Reschedule delivery for ORD-0001 to 2026-05-15");
+                Console.WriteLine("  4. Refund Status         — e.g. Check refund for RET-9001");
+                Console.WriteLine();
+            }
+            Console.Write("Please select a service (1-4): ");
+            var choiceInput = Console.ReadLine()?.Trim();
+            if (int.TryParse(choiceInput, out serviceChoice) && serviceChoice >= 1 && serviceChoice <= 4)
+                break;
+            Console.WriteLine("Invalid selection. Please enter a number between 1 and 4.");
+        }
+
+        var serviceNames = new Dictionary<int, string>
+        {
+            { 1, "Order Status" },
+            { 2, "Return Initiation" },
+            { 3, "Delivery Rescheduling" },
+            { 4, "Refund Status" }
+        };
+        Console.WriteLine($"You selected: {serviceNames[serviceChoice]}");
+        Console.WriteLine(new string('-', 60));
+        isFirstRound = false;
+
+        // ── Collect and validate fields based on service selection ─────────
+        string orderId = string.Empty;
+        string customerEmail;
+        string? returnId = null;
+
+        while (true)
+        {
+            if (serviceChoice == 4)
+            {
+                while (true)
+                {
+                    Console.Write("Enter your Return ID (e.g. RET-9001): ");
+                    var retInput = Console.ReadLine()?.Trim();
+                    if (!string.IsNullOrWhiteSpace(retInput))
+                    {
+                        returnId = retInput;
+                        break;
+                    }
+                    Console.WriteLine("Return ID is a mandatory field. Please provide your Return ID to continue.");
+                }
+            }
+            else
+            {
+                while (true)
+                {
+                    Console.Write("Enter your Order ID (e.g. ORD-0001): ");
+                    var orderInput = Console.ReadLine()?.Trim();
+                    if (!string.IsNullOrWhiteSpace(orderInput))
+                    {
+                        orderId = orderInput;
+                        break;
+                    }
+                    Console.WriteLine("Order ID is a mandatory field. Please provide your Order ID to continue.");
+                }
+            }
+
+            while (true)
+            {
+                Console.Write("Enter your Email Address: ");
+                var emailInput = Console.ReadLine()?.Trim();
+                if (!string.IsNullOrWhiteSpace(emailInput))
+                {
+                    customerEmail = emailInput;
+                    break;
+                }
+                Console.WriteLine("Email Address is a mandatory field. Please provide your Email Address to continue.");
+            }
+
+            // ── Validate against the store ────────────────────────────────
+            if (serviceChoice == 4)
+            {
+                if (!store.Returns.TryGetValue(returnId!, out var matchedReturn))
+                {
+                    Console.WriteLine(new string('-', 60));
+                    Console.WriteLine($"No data found for Return ID '{returnId}'. Please verify your Return ID and try again.");
+                    Console.WriteLine(new string('-', 60));
+                    continue;
+                }
+                if (!string.Equals(matchedReturn.CustomerEmail, customerEmail, StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine(new string('-', 60));
+                    Console.WriteLine($"No data found. The Email Address '{customerEmail}' does not match the records for Return ID '{returnId}'. Please verify your details and try again.");
+                    Console.WriteLine(new string('-', 60));
+                    continue;
+                }
+                orderId = matchedReturn.OrderId;
+            }
+            else
+            {
+                if (!store.Orders.TryGetValue(orderId, out var matchedOrder))
+                {
+                    Console.WriteLine(new string('-', 60));
+                    Console.WriteLine($"No data found for Order ID '{orderId}'. Please verify your Order ID and try again.");
+                    Console.WriteLine(new string('-', 60));
+                    continue;
+                }
+                if (!string.Equals(matchedOrder.CustomerEmail, customerEmail, StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine(new string('-', 60));
+                    Console.WriteLine($"No data found. The Email Address '{customerEmail}' does not match the records for Order ID '{orderId}'. Please verify your details and try again.");
+                    Console.WriteLine(new string('-', 60));
+                    continue;
+                }
+            }
+
             break;
         }
+
+        // ── Execute action based on service selection ─────────────────────
+        Console.WriteLine(new string('-', 60));
+        Console.WriteLine("✅ Identity verified.");
+
+        if (serviceChoice == 1)
+        {
+            // Order Status
+            var orderInfo = store.Orders[orderId];
+            Console.WriteLine("Here are your order details:");
+            Console.WriteLine($"  Order ID          : {orderInfo.OrderId}");
+            Console.WriteLine($"  Email             : {orderInfo.CustomerEmail}");
+            Console.WriteLine($"  Status            : {orderInfo.Status}");
+            Console.WriteLine($"  Carrier           : {orderInfo.Carrier}");
+            Console.WriteLine($"  Est. Delivery Date: {orderInfo.EstimatedDeliveryDate:yyyy-MM-dd}");
+            if (orderInfo.DeliveredDate.HasValue)
+                Console.WriteLine($"  Delivered Date    : {orderInfo.DeliveredDate.Value:yyyy-MM-dd}");
+        }
+        else if (serviceChoice == 2)
+        {
+            // Return Initiation
+            try
+            {
+                var returnResult = tools.ReturnInitiationTool(orderId, customerEmail);
+                var resultJson = JsonSerializer.Serialize(returnResult);
+                using var doc = JsonDocument.Parse(resultJson);
+                var root = doc.RootElement;
+                Console.WriteLine("Your return has been initiated successfully:");
+                Console.WriteLine($"  Return ID               : {root.GetProperty("return_id").GetString()}");
+                Console.WriteLine($"  Stage                   : {root.GetProperty("stage").GetString()}");
+                Console.WriteLine($"  Expected Completion Date: {root.GetProperty("expected_completion_date").GetString()}");
+            }
+            catch (ToolExecutionException ex)
+            {
+                Console.WriteLine($"Return could not be initiated: {ex.Message}");
+            }
+        }
+        else if (serviceChoice == 3)
+        {
+            // Delivery Rescheduling — ask for new date, max 3 attempts
+            int attempts = 0;
+            const int maxAttempts = 3;
+            while (attempts < maxAttempts)
+            {
+                DateOnly newDate;
+                while (true)
+                {
+                    Console.Write("Enter the new delivery date (yyyy-MM-dd): ");
+                    var dateInput = Console.ReadLine()?.Trim();
+                    if (!string.IsNullOrWhiteSpace(dateInput) && DateOnly.TryParse(dateInput, out newDate))
+                        break;
+                    Console.WriteLine("Invalid date. Please enter a valid date in yyyy-MM-dd format.");
+                }
+
+                attempts++;
+                try
+                {
+                    var rescheduleResult = tools.DeliveryReschedulingTool(orderId, customerEmail, newDate);
+                    var resultJson = JsonSerializer.Serialize(rescheduleResult);
+                    using var doc = JsonDocument.Parse(resultJson);
+                    var root = doc.RootElement;
+                    Console.WriteLine("Delivery has been rescheduled successfully:");
+                    Console.WriteLine($"  Order ID          : {root.GetProperty("order_id").GetString()}");
+                    Console.WriteLine($"  New Delivery Date : {root.GetProperty("new_delivery_date").GetString()}");
+                    Console.WriteLine($"  Confirmation      : {root.GetProperty("confirmation").GetString()}");
+                    break;
+                }
+                catch (ToolExecutionException ex)
+                {
+                    Console.WriteLine($"Delivery could not be rescheduled: {ex.Message}");
+                    if (attempts < maxAttempts)
+                        Console.WriteLine($"Please try again with a valid future date. ({maxAttempts - attempts} attempt(s) remaining)");
+                    else
+                        Console.WriteLine("Maximum attempts reached. Please try again later.");
+                }
+            }
+        }
+        else if (serviceChoice == 4)
+        {
+            // Refund Status
+            var retRecord = store.Returns[returnId!];
+            Console.WriteLine("Here are your return/refund details:");
+            Console.WriteLine($"  Return ID               : {retRecord.ReturnId}");
+            Console.WriteLine($"  Order ID                : {retRecord.OrderId}");
+            Console.WriteLine($"  Email                   : {retRecord.CustomerEmail}");
+            Console.WriteLine($"  Stage                   : {retRecord.Stage}");
+            Console.WriteLine($"  Expected Completion Date: {retRecord.ExpectedCompletionDate:yyyy-MM-dd}");
+        }
+        Console.WriteLine(new string('-', 60));
+
+        // ── Ask if user wants to check something else ─────────────────────
+        while (true)
+        {
+            Console.Write("Is there anything else I can help you with? (yes/no): ");
+            var continueChoice = Console.ReadLine()?.Trim();
+
+            if (string.IsNullOrWhiteSpace(continueChoice)
+                || continueChoice.Equals("no", StringComparison.OrdinalIgnoreCase)
+                || continueChoice.Equals("n", StringComparison.OrdinalIgnoreCase))
+            {
+                userWantsToExit = true;
+                break;
+            }
+            if (continueChoice.Equals("yes", StringComparison.OrdinalIgnoreCase)
+                || continueChoice.Equals("y", StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine(new string('-', 60));
+                break; // go back to service selection
+            }
+            Console.WriteLine("Please enter 'yes' or 'no'.");
+        }
+    }
+
+    if (userWantsToExit)
+    {
+        Console.WriteLine(new string('-', 60));
+        Console.WriteLine("Thank you for using ShopAxis Customer Support! Please visit us again. 👋");
         Console.WriteLine(new string('-', 60));
     }
 }

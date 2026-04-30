@@ -2,6 +2,7 @@ using Azure.AI.Agents.Persistent;
 using Azure.AI.Projects;
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
+using System.IO;
 using System.ClientModel;
 using System.Text.Json;
 
@@ -56,20 +57,22 @@ public sealed class FoundryAgentRunner
             : "You are a ShopAxis customer service agent. " +
               "Always verify customer identity before executing any transaction.";
 
-        // Ensure Azure CLI is discoverable regardless of which terminal launched
-        // the app — needed so AzureCliCredential inside DefaultAzureCredential works.
-        const string azCliWbin = @"C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin";
-        var currentPath = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
-        if (!currentPath.Contains(azCliWbin, StringComparison.OrdinalIgnoreCase))
-            Environment.SetEnvironmentVariable("PATH", currentPath + ";" + azCliWbin);
+        // Ensure Azure CLI is discoverable on Windows when AzureCliCredential is used.
+        if (OperatingSystem.IsWindows())
+        {
+            const string azCliWbin = @"C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin";
+            var currentPath = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
+            if (!currentPath.Contains(azCliWbin, StringComparison.OrdinalIgnoreCase))
+                Environment.SetEnvironmentVariable("PATH", currentPath + Path.PathSeparator + azCliWbin);
+        }
 
         var tenantId = config["Foundry:TenantId"];
         var credOptions = new DefaultAzureCredentialOptions
         {
             TenantId = string.IsNullOrWhiteSpace(tenantId) ? null : tenantId
         };
-        AIProjectClient projectClient = new AIProjectClient(
-            new Uri(endpoint), new DefaultAzureCredential(credOptions));
+        var credential = new DefaultAzureCredential(credOptions);
+        AIProjectClient projectClient = new AIProjectClient(new Uri(endpoint), credential);
 
         _agentsClient = projectClient.GetPersistentAgentsClient();
     }

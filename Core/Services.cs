@@ -1,4 +1,6 @@
 using System.Text.Json;
+using Azure;
+using Azure.Core;
 using Azure.Identity;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
@@ -28,24 +30,55 @@ public sealed class SimulatedBackendStore
         {
             Console.WriteLine($"Loading dataset from storage: {accountUrl}/{containerName}");
             var connectionString = config["Storage:ConnectionString"];
-            BlobContainerClient container;
-            if (!string.IsNullOrWhiteSpace(connectionString))
-                container = new BlobContainerClient(connectionString, containerName);
-            else
-                container = new BlobServiceClient(new Uri(accountUrl), new DefaultAzureCredential())
-                                .GetBlobContainerClient(containerName);
+            try
+            {
+                BlobContainerClient container;
+                if (!string.IsNullOrWhiteSpace(connectionString))
+                {
+                    container = new BlobContainerClient(connectionString, containerName);
+                }
+                else
+                {
+                    container = new BlobServiceClient(new Uri(accountUrl), new DefaultAzureCredential())
+                                    .GetBlobContainerClient(containerName);
+                }
 
-            store.Orders  = ToCaseInsensitive(
-                                await LoadBlobJsonAsync<Dictionary<string, OrderRecord>>(container,  "orders.json"))
-                            ?? store.DefaultOrders();
-            store.Returns = ToCaseInsensitive(
-                                await LoadBlobJsonAsync<Dictionary<string, ReturnRecord>>(container, "returns.json"))
-                            ?? store.DefaultReturns();
-            store.Refunds = ToCaseInsensitive(
-                                await LoadBlobJsonAsync<Dictionary<string, RefundRecord>>(container, "refunds.json"))
-                            ?? store.DefaultRefunds();
+                store.Orders  = ToCaseInsensitive(
+                                    await LoadBlobJsonAsync<Dictionary<string, OrderRecord>>(container,  "orders.json"))
+                                ?? store.DefaultOrders();
+                store.Returns = ToCaseInsensitive(
+                                    await LoadBlobJsonAsync<Dictionary<string, ReturnRecord>>(container, "returns.json"))
+                                ?? store.DefaultReturns();
+                store.Refunds = ToCaseInsensitive(
+                                    await LoadBlobJsonAsync<Dictionary<string, RefundRecord>>(container, "refunds.json"))
+                                ?? store.DefaultRefunds();
 
-            Console.WriteLine($"  Loaded {store.Orders.Count} orders, {store.Returns.Count} returns, {store.Refunds.Count} refunds from storage.");
+                Console.WriteLine($"  Loaded {store.Orders.Count} orders, {store.Returns.Count} returns, {store.Refunds.Count} refunds from storage.");
+            }
+            catch (AuthenticationFailedException ex)
+            {
+                Console.WriteLine($"Warning: unable to load dataset from Azure Blob storage because authentication failed: {ex.Message}");
+                Console.WriteLine("  Falling back to bundled seed data. To use Azure storage, set Storage:ConnectionString or configure Azure credentials.");
+                store.Orders  = store.DefaultOrders();
+                store.Returns = store.DefaultReturns();
+                store.Refunds = store.DefaultRefunds();
+            }
+            catch (RequestFailedException ex)
+            {
+                Console.WriteLine($"Warning: unable to load dataset from Azure Blob storage: {ex.Message}");
+                Console.WriteLine("  Falling back to bundled seed data.");
+                store.Orders  = store.DefaultOrders();
+                store.Returns = store.DefaultReturns();
+                store.Refunds = store.DefaultRefunds();
+            }
+            catch (AggregateException ex) when (ex.InnerException is AuthenticationFailedException authEx)
+            {
+                Console.WriteLine($"Warning: unable to load dataset from Azure Blob storage because authentication failed: {authEx.Message}");
+                Console.WriteLine("  Falling back to bundled seed data. To use Azure storage, set Storage:ConnectionString or configure Azure credentials.");
+                store.Orders  = store.DefaultOrders();
+                store.Returns = store.DefaultReturns();
+                store.Refunds = store.DefaultRefunds();
+            }
         }
         else
         {

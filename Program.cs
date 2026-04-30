@@ -3,7 +3,50 @@ using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-// ── Build configuration ───────────────────────────────────────────────────────
+// ── Mode: API vs Console ──────────────────────────────────────────────────────
+var runAsApi = args.Contains("--api", StringComparer.OrdinalIgnoreCase);
+
+if (runAsApi)
+{
+    // ── Web API mode ──────────────────────────────────────────────────────────
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Register services
+    var apiStore = await SimulatedBackendStore.LoadAsync(builder.Configuration);
+    builder.Services.AddSingleton(apiStore);
+    builder.Services.AddSingleton<ContentSafetyService>();
+    builder.Services.AddSingleton(new CommerceTools(apiStore));
+    builder.Services.AddSingleton<AuditLogger>();
+    builder.Services.AddSingleton(sp =>
+        new FoundryAgentRunner(
+            builder.Configuration,
+            sp.GetRequiredService<ContentSafetyService>(),
+            sp.GetRequiredService<CommerceTools>(),
+            sp.GetRequiredService<AuditLogger>()));
+
+    // CORS — allow React dev server
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+    });
+
+    var app = builder.Build();
+    app.UseCors();
+    app.MapShopAxisApi();
+
+    Console.WriteLine("ShopAxis API running at: http://localhost:5000");
+    Console.WriteLine("Endpoints: /api/validate, /api/order-status, /api/return, /api/reschedule, /api/refund-status, /api/chat");
+    app.Run("http://localhost:5000");
+    return;
+}
+
+// ── Console mode (existing behavior) ──────────────────────────────────────────
+// Build configuration ───────────────────────────────────────────────────────
 // Loads appsettings.json first, then appsettings.Development.json (if present),
 // then environment variables (which override both files).
 var config = new ConfigurationBuilder()

@@ -91,3 +91,65 @@ public sealed class AgentRuntimeConfig
     public required string ModelDeploymentName { get; init; }
     public required string ProjectEndpoint { get; init; }
 }
+
+// ── API request/response DTOs ─────────────────────────────────────────────────
+
+public sealed class ValidateRequest
+{
+    public required string Id { get; init; }
+    public required string Email { get; init; }
+    /// <summary>"order" or "return"</summary>
+    public required string IdType { get; init; }
+}
+
+public sealed class ValidateResponse
+{
+    public bool Valid { get; init; }
+    public string? Message { get; init; }
+    public object? Data { get; init; }
+}
+
+public sealed class OrderStatusRequest
+{
+    public required string OrderId { get; init; }
+    public required string Email { get; init; }
+}
+
+public sealed class ReturnRequest
+{
+    public required string OrderId { get; init; }
+    public required string Email { get; init; }
+}
+
+public sealed class RescheduleRequest
+{
+    public required string OrderId { get; init; }
+    public required string Email { get; init; }
+    public required string NewDeliveryDate { get; init; }
+}
+
+public sealed class RefundStatusRequest
+{
+    public required string ReturnId { get; init; }
+    public required string Email { get; init; }
+}
+
+public sealed class ChatRequest
+{
+    public required string Message { get; init; }
+    public string? SessionId { get; init; }
+}
+
+public sealed class ChatResponse
+{
+    public required string Reply { get; init; }
+    public required string SessionId { get; init; }
+    public bool Escalated { get; init; }
+}
+
+public sealed class ApiResult
+{
+    public bool Success { get; init; }
+    public string? Message { get; init; }
+    public object? Data { get; init; }
+}
